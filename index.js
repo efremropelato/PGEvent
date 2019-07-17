@@ -1,6 +1,6 @@
 
 var pg = require('pg'),
-    conString = 'postgres://postgres:postgres@localhost:5432/TEST',
+    conString = 'postgres://postgres:postgres@localhost:5432/PGEvent',
     pgClient;
 
 console.log('LISTEN myEvent');
