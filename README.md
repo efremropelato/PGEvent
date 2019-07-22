@@ -19,24 +19,41 @@ Example of using pg_notify into Nodejs project
 	- Create a function:
 
      ```sql
-     CREATE OR REPLACE FUNCTION PUBLIC.NOTIFY() RETURNS trigger AS
-     $BODY$
-     BEGIN
-         PERFORM pg_notify('myEvent', row_to_json(NEW)::text);
-         RETURN new;
-     END;
-     $BODY$
-     LANGUAGE 'plpgsql' VOLATILE COST 100;
+     CREATE OR REPLACE FUNCTION NOTIFY() RETURNS TRIGGER
+    LANGUAGE PLPGSQL
+    AS
+    $$
+    BEGIN
+        IF(TG_OP = 'DELETE') THEN
+            PERFORM PG_NOTIFY('myEvent', '{"data": ' || ROW_TO_JSON(OLD)::TEXT || ', "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
+            RETURN OLD;
+        ELSEIF(TG_OP = 'TRUNCATE') THEN
+            PERFORM PG_NOTIFY('myEvent', '{"data": null, "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
+            RETURN NEW;
+        ELSE
+            PERFORM PG_NOTIFY('myEvent', '{"data": ' || ROW_TO_JSON(NEW)::TEXT || ', "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
+            RETURN NEW;
+        END IF;
+    END;
+    $$;
+    
+    ALTER FUNCTION NOTIFY() OWNER TO POSTGRES;
      ```
 
 	- Create a trigger to our table:
 
      ```sql
-     CREATE TRIGGER TBLEXAMPLE_AFTER
-     AFTER INSERT
-     ON PUBLIC.TBLEXAMPLE
-     FOR EACH ROW
-     EXECUTE PROCEDURE PUBLIC.NOTIFY();
+     CREATE TRIGGER TBLEXAMPLE_AFTER_STATEMENT
+    AFTER INSERT OR UPDATE OR DELETE
+    ON TBLEXAMPLE
+    FOR EACH ROW
+    EXECUTE PROCEDURE NOTIFY();
+
+    CREATE TRIGGER TBLEXAMPLE_BEFORE_TRUNCATE
+        BEFORE TRUNCATE
+        ON TBLEXAMPLE
+        FOR EACH STATEMENT
+    EXECUTE PROCEDURE NOTIFY();
      ```
 
 2. Init a npm project:
@@ -45,7 +62,7 @@ Example of using pg_notify into Nodejs project
 	- create a index.js:
 	```javascript
     var pg = require('pg'),
-    conString = 'postgres://postgres:postgres@localhost:5432/TEST',
+    conString = 'postgres://postgres:postgres@localhost:5432/PGEvent',
     pgClient;
 
     console.log('LISTEN myEvent');
@@ -54,6 +71,12 @@ Example of using pg_notify into Nodejs project
 
     pgClient.query('LISTEN "myEvent"');
     pgClient.on('notification', function (data) {
-        console.log("\033[34m" + new Date + '-\033[0m payload', data.payload);
+        try {
+            console.log(`[${new Date}] - payload =>`, JSON.parse(data.payload));
+        } catch (error) {
+            console.error(error)
+        } finally {
+            console.log("Complete Message=> ",data);
+        }
     });
   ```
