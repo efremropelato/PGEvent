@@ -9,5 +9,11 @@ pgClient.connect();
 
 pgClient.query('LISTEN "myEvent"');
 pgClient.on('notification', function (data) {
-    console.log("\033[34m" + new Date + '-\033[0m payload', data.payload);
+    try {
+        console.log(`[${new Date}] - payload =>`, JSON.parse(data.payload));
+    } catch (error) {
+        console.error(error)
+    } finally {
+        console.log("Complete Message=> ",data);
+    }
 });
