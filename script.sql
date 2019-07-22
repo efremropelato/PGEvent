@@ -12,20 +12,19 @@ CREATE TABLE PUBLIC.TBLEXAMPLE
     CONSTRAINT TBLEXAMPLE_PKEY PRIMARY KEY (KEY1, KEY2)
 );
 
-
-CREATE FUNCTION NOTIFY() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION NOTIFY() RETURNS TRIGGER
     LANGUAGE PLPGSQL
 AS
 $$
 BEGIN
     IF(TG_OP = 'DELETE') THEN
-        PERFORM PG_NOTIFY('myEvent', '{data: ' || ROW_TO_JSON(OLD)::TEXT || ', type: ' || TG_OP::TEXT || '}');
+        PERFORM PG_NOTIFY('myEvent', '{"data": ' || ROW_TO_JSON(OLD)::TEXT || ', "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
         RETURN OLD;
     ELSEIF(TG_OP = 'TRUNCATE') THEN
-        PERFORM PG_NOTIFY('myEvent', '{data: null, type: '::TEXT || ' [' ||  TG_TABLE_SCHEMA || '.' ||  TG_TABLE_NAME || '] - ' || TG_OP::TEXT|| '}');
+        PERFORM PG_NOTIFY('myEvent', '{"data": null, "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
         RETURN NEW;
     ELSE
-        PERFORM PG_NOTIFY('myEvent', '{data: ' || ROW_TO_JSON(NEW)::TEXT || ', type: ' || TG_OP::TEXT || '}');
+        PERFORM PG_NOTIFY('myEvent', '{"data": ' || ROW_TO_JSON(NEW)::TEXT || ', "type": "'::TEXT || TG_OP::TEXT|| '", "schemaName":"' ||  TG_TABLE_SCHEMA || '", "tableName":"' ||  TG_TABLE_NAME || '"}');
         RETURN NEW;
     END IF;
 END;
