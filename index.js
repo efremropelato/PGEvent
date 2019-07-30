@@ -1,14 +1,13 @@
 
-var pg = require('pg'),
-    conString = 'postgres://postgres:postgres@localhost:5432/PGEvent',
-    pgClient;
+const pg = require('pg'),
+    conString = 'postgres://postgres:postgres@localhost:5432/PGEvent';
 
 console.log('LISTEN myEvent');
-pgClient = new pg.Client(conString);
+const pgClient = new pg.Client(conString);
 pgClient.connect();
 
 pgClient.query('LISTEN "myEvent"');
-pgClient.on('notification', function (data) {
+pgClient.on('notification', (data) => {
     try {
         console.log(`[${new Date}] - payload =>`, JSON.parse(data.payload));
     } catch (error) {
