@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "module": "CommonJS",
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "jsx": "react",
+    "removeComments": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "esModuleInterop": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": ["node"],
+    "downlevelIteration": true
+  }
+}
