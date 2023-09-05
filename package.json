@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "start": "node .",
-    "debug": "ts-node-dev ./index.ts",
+    "dev": "ts-node-dev ./index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

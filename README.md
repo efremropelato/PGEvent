@@ -5,10 +5,10 @@ Example of using pg_notify into Nodejs project
 
 2. Init a npm project:
 
-	- add dependencies: ```npm i -S pg```
-	- run app: ```npm start```
+	- add dependencies: ```yarn```
+	- build & run app: ```yarn build && yarn start```
 	
 	or
 	
-	- debug app: ```npm run debug```
+	- dev app: ```yarn dev```
 
