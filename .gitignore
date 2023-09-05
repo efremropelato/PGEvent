@@ -1,5 +1,5 @@
 node_modules
-build
+dist
 npm-debug.log
 .env
 .DS_Store
@@ -7,3 +7,4 @@ npm-debug.log
 \.history/
 
 package-lock\.json
+yarn.lock
